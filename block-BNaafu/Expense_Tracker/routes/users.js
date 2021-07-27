@@ -3,8 +3,12 @@ var User = require('../models/User');
 var multer = require('multer');
 var path = require('path');
 var auth = require('../middlewares/auth');
-let Income = require('../models/Income');
-let Expense = require('../models/Expense');
+var Income = require('../models/Income');
+var Expense = require('../models/Expense');
+var crypto =  require('crypto');
+var Token = require('../models/Token');
+var nodemailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
 
 var router = express.Router();
 
@@ -31,14 +35,6 @@ router.get('/', (req, res, next) => {
     res.render('users', { users });
     });
 });
-// router.get('/dashboard', (req, res, next) => {
-//   let userId = req.session.userId || req.session.passport.user;
-//   User.findOne({_id: userId }, (err, user) => {
-//     if(err) return next(err);
-//     res.render('dashboard', { user });
-//   });
-// })
-
 
 // User Registration 
 
@@ -62,10 +58,76 @@ router.post('/register', upload.single('profilePic') ,(req, res, next) => {
         return res.redirect('/users/register');
       }
     }
-    req.flash('success', 'User registered successfully!');
-    res.redirect('/users/login');
+        // generate token and save
+        var token = new Token({ _userId: user._id, token: crypto.randomBytes(16).toString('hex') });
+        token.save(function (err) {
+          if(err){
+            return res.status(500).send({msg:err.message});
+          }
+        // Send email (use credintials of SendGrid)
+        var transporter = nodemailer.createTransport({ 
+          service: 'Sendgrid', 
+          auth: { 
+                  api_key:process.env.SENDGRID_APIKEY,
+                } 
+            });
+        var mailOptions = { 
+                  from: 'no-reply@example.com', 
+                  to: user.email, 
+                  subject: 'Account Verification Link', 
+                  text: 'Hello '+ req.body.name +',\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/confirmation\/' + user.email + '\/' + token.token + '\n\nThank You!\n' 
+        };
+        transporter.sendMail(mailOptions, function (err) {
+        if (err) { 
+          return res.status(500).send({msg:'Technical Issue!, Please click on resend for verify your Email.'});
+        }
+        req.flash('success', 'A verification email has been sent to ' + user.email + '. It will be expire after one day. If you not get verification Email click on resend token.');
+        res.redirect('/users/login');
+      });
+    });
+  });
+})
+
+// Email confirmation
+
+router.get('/confirmation/:email/:token', function (req, res, next) {
+  Token.findOne({ token: req.params.token }, function (err, token) {
+      // token is not found into database i.e. token may have expired 
+      if (!token){
+          return res.status(400).send({msg:'Your verification link may have expired. Please click on resend for verify your Email.'});
+      }
+      // if token is found then check valid user 
+      else{
+          User.findOne({ _id: token._userId, email: req.params.email }, function (err, user) {
+              // not valid user
+              if (!user){
+                  return res.status(401).send({msg:'We were unable to find a user for this verification. Please SignUp!'});
+              } 
+              // user is already verified
+              else if (user.isVerified){
+                  return res.status(200).send('User has been already verified. Please Login');
+              }
+              // verify user
+              else{
+                  // change isVerified to true
+                  user.isVerified = true;
+                  user.save(function (err) {
+                      // error occur
+                      if(err){
+                          return res.status(500).send({msg: err.message});
+                      }
+                      // account successfully verified
+                      else{
+                        return res.status(200).send('Your account has been successfully verified');
+                      }
+                  });
+              }
+          });
+      }
+      
   });
 });
+
 
 // Login
 router.get('/login', (req,res, next) =>  {
@@ -91,17 +153,14 @@ router.post('/login', (req, res, next) => {
       if(!result) {
         req.flash('error', 'Incorrect password! Try Again!');
         return res.redirect('/users/login');
-      } else if(result) {
-        if(user.isVerified) {
-          req.session.userId = user.id;
-          res.redirect(req.session.returnTo || '/users/dashboard');
-          delete req.session.returnTo;
-        } else {
-          req.flash('error', 'Please verify your email before login!');
-          return res.redirect('/users/login');
-        }
       }
-
+       if(!user.isVerified) { 
+        req.flash('error', 'Please verify your email before login!');
+        return res.redirect('/users/login');
+        } 
+        req.session.userId = user.id;
+        res.redirect(req.session.returnTo || '/users/dashboard');
+        delete req.session.returnTo;
     });
   });
 });
@@ -176,4 +235,3 @@ router.get('/logout', (req, res, next) => {
 }); 
 
 module.exports = router;
-
