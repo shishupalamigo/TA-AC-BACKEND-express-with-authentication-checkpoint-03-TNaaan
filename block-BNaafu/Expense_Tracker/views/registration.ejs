@@ -1,0 +1,23 @@
+<% include partials/header %>
+
+    <main class="m-20 min-screen-h flex justify-center items-center" >
+        <section class="">
+            <h2 class="text-xl text-green-600 font-bold text-center mb-5">Registration</h2>
+            <form action="/users/register" method="POST" class="border-2 p-5 flex flex-col" enctype="multipart/form-data">
+                <% if(error) { %>
+                    <p class="text-red-500 "><%= error %></p>
+                <% } %>
+                <input type="text" name="name" placeholder="Name" class="p-2 border border-grey-500 mb-5">
+                <input type="text" name="username" placeholder="Username" class="p-2 border border-grey-500 mb-5">
+                <input type="email" name="email" placeholder="Email" class="p-2 border border-grey-500 mb-5">
+                <input type="password" name="password" placeholder="Password" required class="p-2 border border-grey-500 mb-5">
+                <input type="number" name="age" placeholder="Age" class="p-2 border border-grey-500 mb-5">
+                <input type="tel" name="phone" placeholder="Phone" class="p-2 border border-grey-500 mb-5">
+                <input type="text" name="country" placeholder="Country" class="p-2 border border-grey-500 mb-5">
+                <input type="file" name="profilePic" placeholder="Add Profile image" class="p-2 border border-grey-500 mb-5">
+                <button type="submit" class="px-3 py-2 bg-green-600 hover-bg-geen-900 text-white font-bold">Register</button>
+            </form>
+        </section>
+    </main>
+
+<% include partials/footer %>

@@ -1,0 +1,14 @@
+<% include partials/header %>
+
+    <h1 class="text-xl text-center mt-10 mb-10 text-indigo-500" >Add Income</h1>
+    <section class="m-20 min-screen-h flex justify-center items-center" >
+      <form action="/users/income" method="POST" class="border-2 p-5 flex flex-col" >
+        <input type="text" placeholder="Source" name="source" class="p-2 border border-grey-500 mb-5" />
+        <input type="number" placeholder="Amount" name="amount" class="p-2 border border-grey-500 mb-5" />
+        <input type="date" name="date" class="p-2 border border-grey-500 mb-5" />
+        <input type="submit" value="Add Income" class="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded" />
+      </form>
+    </section>
+
+
+<% include partials/footer %>
