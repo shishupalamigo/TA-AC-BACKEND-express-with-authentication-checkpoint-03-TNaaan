@@ -8,7 +8,9 @@ var Expense = require('../models/Expense');
 var crypto =  require('crypto');
 var Token = require('../models/Token');
 var nodemailer = require('nodemailer');
-const sendgridTransport = require('nodemailer-sendgrid-transport');
+var sendgridTransport = require('nodemailer-sendgrid-transport');
+var bcrypt = require('bcrypt');
+var random = require('../randomText');
 
 var router = express.Router();
 
@@ -91,52 +93,14 @@ router.post('/register', upload.single('profilePic') ,(req, res, next) => {
   });
 })
 
-// // Email confirmation
-
-// router.get('/confirmation/:email/:token', function (req, res, next) {
-//   Token.findOne({ token: req.params.token }, function (err, token) {
-//       // token is not found into database i.e. token may have expired 
-//       if (!token){
-//           return res.status(400).send({msg:'Your verification link may have expired. Please click on resend for verify your Email.'});
-//       }
-//       // if token is found then check valid user 
-//       else{
-//           User.findOne({ _id: token._userId, email: req.params.email }, function (err, user) {
-//               // not valid user
-//               if (!user){
-//                   return res.status(401).send({msg:'We were unable to find a user for this verification. Please SignUp!'});
-//               } 
-//               // user is already verified
-//               else if (user.isVerified){
-//                   return res.status(200).send('User has been already verified. Please Login');
-//               }
-//               // verify user
-//               else{
-//                   // change isVerified to true
-//                   user.isVerified = true;
-//                   user.save(function (err) {
-//                       // error occur
-//                       if(err){
-//                           return res.status(500).send({msg: err.message});
-//                       }
-//                       // account successfully verified
-//                       else{
-//                         return res.status(200).send('Your account has been successfully verified');
-//                       }
-//                   });
-//               }
-//           });
-//       }
-      
-//   });
-// });
 
 
 // Login
 router.get('/login', (req,res, next) =>  {
   var error = req.flash('error')[0];
   var success = req.flash('success')[0];
-  res.render('login', { error, success });
+  let info = req.flash('info')[0];
+  res.render('login', { error, success, info });
 });
 
 router.post('/login', (req, res, next) => {
@@ -166,6 +130,104 @@ router.post('/login', (req, res, next) => {
         delete req.session.returnTo;
     });
   });
+});
+
+//render forgot password page
+router.get('/login/forgotpassword', (req, res, next) => {
+  let error = req.flash('error')[0];
+  let info = req.flash('info')[0];
+  res.render('forgotPassword', {error, info});
+});
+
+let code = random();
+//process forgot password
+router.post('/login/forgotpassword', (req, res, next) => {
+  let {email} = req.body;
+  req.body.random = code;
+  console.log(req.body.random);
+  User.findOneAndUpdate({email}, req.body, (err, user) => {
+    if(err) return next(err);
+    console.log(user);
+    if(!user) {
+      req.flash('error', 'The Email entered is not Registered, Please register!');
+      return res.redirect('/users/login/forgotpassword');
+    }
+    const transporter = nodemailer.createTransport({
+      service: 'Sendgrid', 
+      auth: { 
+        user: 'apikey', 
+        pass: process.env.SENDGRID_APIKEY,
+      }
+    });
+    
+    const mailOptions = {
+      from: 'shisgupal.bhu@gmail.com',
+      to: email,
+      subject: 'Verification Email',
+      html: `<h1>${req.body.random}</h1>
+              <h2>Please Copy above 6 digit number and click this link http://localhost:3000/users/login/resetpassword/verify </h2>`
+
+    };
+    
+    transporter.sendMail(mailOptions, (err, info) => {
+      if(err) return next(err);
+      req.flash("info", "A verification code has been sent to your email");
+      req.session.email = email;
+      res.redirect('/users/login/forgotpassword');
+    })
+  })
+});
+
+//render reset password verification code page
+router.get('/login/resetpassword/verify', (req, res, next) => {
+  let error = req.flash('error')[0];
+  res.render('resetPasswordVerificationCode', {error});
+});
+
+
+//process verification code
+router.post('/login/resetpassword/verify', (req, res, next) => {
+  let email = req.session.email;
+  let {passcode} = req.body;
+  User.findOne({email}, (err, user) => {
+    if(err) return next(err);
+    if(passcode == code) {
+      return res.redirect('/users/login/resetpassword');
+    } else {
+      req.flash('error', "Invalid verification code");
+      res.redirect('/users/login/resetpassword/verify');
+    }
+  })
+});
+
+//render reset password page
+router.get('/login/resetpassword', (req, res, next) => {
+  let error = req.flash("error")[0];
+  res.render('resetPassword', {error});
+});
+
+//reset password
+router.post('/login/resetpassword', (req, res, next) => {
+  let {newPasswd1, newPasswd2} = req.body;
+  let email = req.session.email;
+  if(newPasswd1 === newPasswd2) {
+    User.findOne({email}, (err, user) => {
+      if(err) return next(user);
+      bcrypt.hash(newPasswd1, 10, (err, hashed) => {
+        if(err) return next(err);
+        req.body.password = hashed;
+        User.findOneAndUpdate({email}, req.body, (err, user) => {
+          if(err) return next(err);
+          req.flash("info", ("Password has been changed Successfully"))
+          return res.redirect('/users/login');
+        })
+        
+      })
+    })
+  } else {
+    req.flash("error", ("Password does not match"));
+    res.redirect('/users/login/resetpassword');
+  }
 });
 
 router.use(auth.loggedInUser);
