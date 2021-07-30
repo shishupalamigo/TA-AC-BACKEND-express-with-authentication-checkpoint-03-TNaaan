@@ -9,9 +9,13 @@ let incomeSchema = new Schema(
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: true 
     },
-  }
+  }, { timestamps: true }
 );
+
+incomeSchema.index({sources: 1});
+incomeSchema.index({date: 1});
 
 let Income = mongoose.model('income', incomeSchema);
 
