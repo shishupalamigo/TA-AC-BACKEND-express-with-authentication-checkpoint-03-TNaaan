@@ -15,6 +15,9 @@ require('dotenv').config();
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var clientRouter = require('./routes/clients');
+var incomeRouter = require('./routes/income');
+var expenseRouter = require('./routes/expense');
 var auth = require('./middlewares/auth');
 
 
@@ -59,6 +62,9 @@ app.use(passport.session());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use(auth.loggedInUser);
+app.use('/clients', clientRouter);
+app.use('/income', incomeRouter);
+app.use('/expense', expenseRouter);
 
 
 // catch 404 and forward to error handler

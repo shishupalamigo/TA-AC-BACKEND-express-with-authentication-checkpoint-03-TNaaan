@@ -236,54 +236,41 @@ router.get('/dashboard', (req, res, next) => {
   let userId = req.session.userId || req.session.passport.user;
   User.findOne({_id: userId }, (err, user) => {
     if(err) return next(err);
-
-  Income.find({ userId: userId }, (error, income) => {
-    if (error) {
-      next(error);
-    } else {
-      Expense.find({ userId: userId }, (error, expense) => {
-        if (error) {
-          next(error);
-        } else {
-          res.render('dashboard', { income: income, expense: expense, user: user });
-        }
+          res.render('dashboard', { user: user });
+        })
       });
-    }
-  });
-});
-});
 
-router.get('/income', (req, res) => {
-  res.render('income');
-});
+// router.get('/income', (req, res) => {
+//   res.render('income');
+// });
 
-router.post('/income', (req, res) => {
-  let userId = req.session.userId || req.session.passport.user;
-  req.body.userId = userId;
-  Income.create(req.body, (error, income) => {
-    if (error) {
-      next(error);
-    } else {
-      res.redirect('/users/dashboard');
-    }
-  });
-});
+// router.post('/income', (req, res) => {
+//   let userId = req.session.userId || req.session.passport.user;
+//   req.body.userId = userId;
+//   Income.create(req.body, (error, income) => {
+//     if (error) {
+//       next(error);
+//     } else {
+//       res.redirect('/users/dashboard');
+//     }
+//   });
+// });
 
-router.get('/expense', (req, res, next) => {
-  res.render('expense');
-});
+// router.get('/expense', (req, res, next) => {
+//   res.render('expense');
+// });
 
-router.post('/expense', (req, res, next) => {
-  let userId = req.session.userId || req.session.passport.user;
-  req.body.userId = userId;
-  Expense.create(req.body, (error, expense) => {
-    if (error) {
-      next(error);
-    } else {
-      res.redirect('/users/dashboard');
-    }
-  });
-});
+// router.post('/expense', (req, res, next) => {
+//   let userId = req.session.userId || req.session.passport.user;
+//   req.body.userId = userId;
+//   Expense.create(req.body, (error, expense) => {
+//     if (error) {
+//       next(error);
+//     } else {
+//       res.redirect('/users/dashboard');
+//     }
+//   });
+// });
 
 // Logout
 router.get('/logout', (req, res, next) => {

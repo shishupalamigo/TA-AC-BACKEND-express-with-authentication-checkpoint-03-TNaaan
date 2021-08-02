@@ -3,9 +3,10 @@ let Schema = mongoose.Schema;
 
 let expenseSchema = new Schema(
   {
-    category: String,
-    amount: Number, 
-    date: Date,
+    expname: { type: String, required: true },
+    category: { type: [String], required: true },
+    amount: { type: Number, required:  true },
+    date: { type: Date, required: true },
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
