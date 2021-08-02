@@ -1,6 +1,6 @@
 <% include partials/header %>
 
-    <main class="m-20 min-screen-h flex justify-center items-center" >
+    <main class="m-20 min-screen-h flex flex-col justify-center items-center" >
         <section class="flex flex-col items-center">
             <h1 class="text-center text-4xl text-blue-600 mb-10 font-bold" >Welcome <%= user.name %></h1>
            <% if(user.profilePic) { %>
@@ -14,53 +14,11 @@
            <% } %>
 
         </section>
-
-    </main>
-    <section class="flex flex-col items-center justify-center mt-5 mb-20">
-        <h2 class="text-3xl text-yellow-700 font-bold m-10">Expenses And Incomes</h2>
-        <%let incomeSum = income.reduce((acc,cv)=>{ %> <% acc = acc +cv.amount %>
-            <% return acc %> <% },0) %> <%let expenseSum = expense.reduce((acc,cv)=>{
-            %> <% acc = acc +cv.amount %> <% return acc %> <% },0) %>
-          <div class="flex mb-10">
-            <div class="border-2 px-5 py-5 text-center mr-5">
-                <h2 class="text-2xl text-red-400 px-3 mb-5 text-center" >Income</h2>
-                <a href="/users/income" class="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded mr-5" >Add Income</a>
-                <div class="mt-10">
-                    <% income.forEach((incomeRecord,index)=>{ %>
-                        <div class="flex justify-between">
-                            <h4 class="text-lg mr-5" ><%= index+1 %>. <%= incomeRecord.source %></h4>
-                            <p class="text-lg" >Amount - ₹<%= incomeRecord.amount %></p>
-                        </div>
-                    <% }) %>  
-                    <p class="text-center text-blue-500 mt-5">
-                        Total: ₹<%= incomeSum %>
-                    </p>      
-                </div>
-            </div>
-              <div class="border-2 px-5 py-5 text-center">
-                <h3 class="text-2xl text-red-400 px-3 mb-5 text-center" >Expense</h3>
-                <a href="/users/expense" class="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded mr-5" >Add Expenses</a>
-                <div class="mt-10">
-                    <% expense.forEach((expenseRecord,index)=>{ %>
-                        <div class="flex justify-between">
-                            <h4 class="text-lg mr-5"><%= index+1 %>. <%= expenseRecord.category %></h4>
-                            <p class="text-lg">Amount - ₹<%= expenseRecord.amount %></p>
-                        </div> 
-                        <% }) %>
-                        <p class="text-center text-indigo-500 mt-5">
-                            Total: ₹<%= expenseSum %>
-                        </p>
-                </div>        
-             </div>  
-          </div>  
- 
-        <div class="border-2 px-5 py-5 text-center">
-          <h2 class="text-2xl text-red-400 px-3 mb-5 text-center" >Savings</h2>
-
-          <h4 class="p-5">
-            Total Income(₹<%= incomeSum %>) - Total Expenses(₹<%= expenseSum %>) =
-            Total Savings (₹<%= incomeSum-expenseSum %>)
-          </h4>
+        <div class="text-center mt-10">
+            <a href="/clients/income/new" class="mx-2 bg-gray-500 text-white font-bold p-2 text-xl rounded-lg hover:bg-gray-400">Add Income</a>
+            <a href="/clients/expense/new"  class="mx-2 bg-gray-500 text-white font-bold p-2 text-xl rounded-lg hover:bg-gray-400">Add Expense</a>
+            <a href="/clients/statementList"  class="mx-2 bg-gray-500 text-white font-bold p-2 text-xl rounded-lg hover:bg-gray-400">View Stement</a>
         </div>
-    </section>
+    </main>
+
 <% include partials/footer %>
