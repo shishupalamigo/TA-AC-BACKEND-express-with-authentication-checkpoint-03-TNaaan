@@ -3,9 +3,6 @@
     <section>
         <div>
             <h1 class="text-4xl font-bold text-center mt-8">Savings for the Month of <%= currentMonth %>: <span class="text-red-500"><%= savings %></span></h1>
-            <% if(balance) {%>
-                <h2 class="text-4xl font-bold text-center mt-8">Savings from the Search results: <span class="text-red-500"><%= balance %></span></h2>
-            <% } %>
         </div>
         </section>
         <section class="flex justify-around">        
@@ -45,6 +42,9 @@
                 </div>
                 
             <% }) %>
+            <% if(balance) {%>
+                <h2 class="text-4xl font-bold text-center mt-8">Savings from the Search results: <span class="text-red-500"><%= balance %></span></h2>
+            <% } %>
             <% if((expenses.length) === 0 && (incomes.length === 0)) { %>
                 <h1 class="text-center text-3xl font-bold">No Records Available</h1>
             <% } %>
