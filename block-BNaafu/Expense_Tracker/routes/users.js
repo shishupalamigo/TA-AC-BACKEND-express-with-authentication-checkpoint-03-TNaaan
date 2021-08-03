@@ -10,10 +10,16 @@ var Token = require('../models/Token');
 var nodemailer = require('nodemailer');
 var sendgridTransport = require('nodemailer-sendgrid-transport');
 var bcrypt = require('bcrypt');
-var random = require('../randomText');
 
 var router = express.Router();
 
+function randomNumber() {
+  let str = "0123456789", str2 = "";
+ for(let i = 0; i <= 5; i++) {
+    str2 += str[Math.floor(Math.random() * 9)];
+}
+  return str2;
+}
 
 var uploadPath = path.join(__dirname, '../', 'public/uploads');
 // Strorage for Uploaded Files
@@ -81,11 +87,10 @@ router.post('/register', upload.single('profilePic') ,(req, res, next) => {
                   text: 'Hello '+ req.body.name +',\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/confirmation\/' + user.email + '\/' + token.token + '\n\nThank You!\n' 
         };
         transporter.sendMail(mailOptions, function (err) {
-          console.log(mailOptions);
           if (err) { 
           return res.status(500).send({msg:'Technical Issue!, Please click on resend to verify your Email.'});
         } else {
-          req.flash('success', 'A verification email has been sent to ' + user.email + '. It will be expire after one day. If you not get verification Email click on resend token.');
+          req.flash('success', 'A verification email has been sent to ' + user.email + '. It will expire after one day. If you not get verification Email click on resend token.');
           res.redirect('/users/login');
         }
       });
@@ -139,7 +144,7 @@ router.get('/login/forgotpassword', (req, res, next) => {
   res.render('forgotPassword', {error, info});
 });
 
-let code = random();
+let code = randomNumber();
 //process forgot password
 router.post('/login/forgotpassword', (req, res, next) => {
   let {email} = req.body;
@@ -165,7 +170,7 @@ router.post('/login/forgotpassword', (req, res, next) => {
       to: email,
       subject: 'Verification Email',
       html: `<h1>${req.body.random}</h1>
-              <h2>Please Copy above 6 digit number and click this link http://localhost:3000/users/login/resetpassword/verify </h2>`
+              <h2>Please Copy above 6 digit number and visit this link http://localhost:3000/users/login/resetpassword/verify </h2>`
 
     };
     
@@ -173,7 +178,7 @@ router.post('/login/forgotpassword', (req, res, next) => {
       if(err) return next(err);
       req.flash("info", "A verification code has been sent to your email");
       req.session.email = email;
-      res.redirect('/users/login/forgotpassword');
+      res.redirect('/users/login/resetpassword/verify');
     })
   })
 });
@@ -181,7 +186,8 @@ router.post('/login/forgotpassword', (req, res, next) => {
 //render reset password verification code page
 router.get('/login/resetpassword/verify', (req, res, next) => {
   let error = req.flash('error')[0];
-  res.render('resetPasswordVerificationCode', {error});
+  let info = req.flash('info')[0];
+  res.render('resetPasswordVerificationCode', {error, info});
 });
 
 
@@ -240,37 +246,6 @@ router.get('/dashboard', (req, res, next) => {
         })
       });
 
-// router.get('/income', (req, res) => {
-//   res.render('income');
-// });
-
-// router.post('/income', (req, res) => {
-//   let userId = req.session.userId || req.session.passport.user;
-//   req.body.userId = userId;
-//   Income.create(req.body, (error, income) => {
-//     if (error) {
-//       next(error);
-//     } else {
-//       res.redirect('/users/dashboard');
-//     }
-//   });
-// });
-
-// router.get('/expense', (req, res, next) => {
-//   res.render('expense');
-// });
-
-// router.post('/expense', (req, res, next) => {
-//   let userId = req.session.userId || req.session.passport.user;
-//   req.body.userId = userId;
-//   Expense.create(req.body, (error, expense) => {
-//     if (error) {
-//       next(error);
-//     } else {
-//       res.redirect('/users/dashboard');
-//     }
-//   });
-// });
 
 // Logout
 router.get('/logout', (req, res, next) => {
