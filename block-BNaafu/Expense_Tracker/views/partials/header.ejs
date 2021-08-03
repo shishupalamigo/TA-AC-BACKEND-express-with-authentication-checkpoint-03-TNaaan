@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="https://kit.fontawesome.com/d77ac583c4.js" crossorigin="anonymous"></script>
+</head>
+<body class="m-10 bg-gradient-to-r from-red-100 via-red-300 to-red-100">
+    <header class="bg-blue-900 w-100 flex justify-between items-center p-5 rounded mb-10">
+       
+       <a href="/" class="text-3xl pl-5">
+        <h2 class="text-white">Expense -Tracker</h2>
+       </a>
+       <% if(user) { %>
+        <nav class="flex items-center w-3/4 justify-end">
+            <div class="flex items-center justify-end">
+                <h3 class="text-lg font-bold text-gray-200"><%= user.name %></h3>
+                <% if(user.profilePic) { %>
+                    <div class="flex w-1/12 items-center mr-2 ml-1"> 
+                        <% if(user.profilePic.includes('http')) { %>
+                            <img src="<%= user.profilePic %>" alt="Profile Pic" class="w-full rounded-full">
+                       <% } else { %>
+                            <img src="/uploads/<%= user.profilePic %>" alt="Profile Pic" class="w-28 rounded-full">
+                       <% } %>
+                    </div>
+                <% } %>
+            </div>
+            <a href="/users/dashboard">
+                <button class="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded ml-3" >My Dashboard</button>
+            </a>
+            <a href="/users/logout" class="px-3 py-2 text-white font-bold rounded bg-green-600 hover:bg-blue-700 ml-4" >
+                Logout
+            </a>
+            </nav>
+       <% } else { %>
+
+
+        <nav class="flex items-center">
+            <a href="/users/login">
+                <button class="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded">Login</button>
+            </a>
+            <a href="/users/register" class="px-3 py-2 text-white font-bold rounded bg-green-600 hover:bg-blue-700 ml-4" >
+                Register
+            </a>
+        </nav>
+        <% } %>
+    </header>
+</body>
+</html>

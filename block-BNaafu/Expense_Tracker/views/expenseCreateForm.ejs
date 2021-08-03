@@ -1,0 +1,21 @@
+<% include partials/header %>
+
+
+    <h1 class="text-xl text-center mt-10 mb-10 text-indigo-500" >Add Expense</h1>
+
+    <section  class="m-20 min-screen-h flex justify-center items-center">
+      <form action="/clients/expense" method="POST" class="border-2 p-5 flex flex-col" >
+        <% if(info) { %>
+          <legend class="text-green-500 font-bold"><%= info %></legend>
+        <% } %>
+        <input type="text" name="expname" placeholder="Enter Expense Name" class="p-2 bg-gray-200 mb-2 rounded-lg border border-gray-500">
+        <input type="text" placeholder="Category" name="category" class="p-2 border border-grey-500 mb-5" />
+        <input type="number" placeholder="Amount" name="amount" class="p-2 border border-grey-500 mb-5" />
+        <input type="date" name="date" class="p-2 border border-grey-500 mb-5" />
+        <input type="submit" value="Add Expense" class="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded" />
+      </form>
+    </section>
+
+
+
+    <% include partials/footer %>

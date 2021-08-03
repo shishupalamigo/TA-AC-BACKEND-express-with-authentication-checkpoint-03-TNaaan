@@ -1,0 +1,24 @@
+<% include partials/header %>
+
+    <main class="m-20 min-screen-h flex flex-col justify-center items-center" >
+        <section class="flex flex-col items-center">
+            <h1 class="text-center text-4xl text-blue-600 mb-10 font-bold" >Welcome <%= user.name %></h1>
+           <% if(user.profilePic) { %>
+                <div class="flex justify-center w-2/4">
+                    <% if(user.profilePic.includes('http')) { %>
+                        <img src="<%= user.profilePic %>" alt="Profile Pic" class="w-full rounded-full">
+                   <% } else { %>
+                        <img src="/uploads/<%= user.profilePic %>" alt="Profile Pic" class="w-full rounded-full">
+                   <% } %>
+                </div>
+           <% } %>
+
+        </section>
+        <div class="text-center mt-10">
+            <a href="/clients/income/new" class="mx-2 bg-yellow-500 text-white font-bold p-2 text-xl rounded-lg hover:bg-gray-400">Add Income</a>
+            <a href="/clients/expense/new"  class="mx-2 bg-yellow-500 text-white font-bold p-2 text-xl rounded-lg hover:bg-gray-400">Add Expense</a>
+            <a href="/clients/statementList"  class="mx-2 bg-yellow-500 text-white font-bold p-2 text-xl rounded-lg hover:bg-gray-400">View All Records</a>
+        </div>
+    </main>
+
+<% include partials/footer %>
